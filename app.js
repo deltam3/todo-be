@@ -4,11 +4,30 @@ const morgan = require("morgan");
 const path = require("path");
 const session = require("express-session");
 const dotenv = require("dotenv");
-
+const cors = require("cors");
+const { sequelize } = require("./models");
 dotenv.config();
 const pageRouter = require("./routes/page");
 
 const app = express();
+
+sequelize
+  .sync({ force: false })
+  .then(() => {
+    console.log("db connected");
+  })
+  .catch((err) => {
+    console.error(err);
+  });
+
+const corsOptions = {
+  origin: "http://localhost:3002", //
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  allowedHeaders: "Content-Type,Authorization",
+};
+
+app.use(cors(corsOptions));
+
 app.set("port", process.env.PORT || 8001);
 app.use(morgan("dev"));
 app.use(express.static(path.join(__dirname, "public")));
@@ -27,7 +46,7 @@ app.use(
   })
 );
 
-app.use("/", pageRouter);
+app.use("/todos", pageRouter);
 
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없다`);

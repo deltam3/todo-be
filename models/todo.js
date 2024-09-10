@@ -4,12 +4,19 @@ class Todo extends Sequelize.Model {
   static initiate(sequelize) {
     Todo.init(
       {
-        todo: {
+        id: {
+          type: Sequelize.INTEGER,
+          autoIncrement: true,
+          primaryKey: true,
+          allowNull: false,
+        },
+        content: {
           type: Sequelize.STRING(200),
           allowNull: false,
         },
         done: {
           type: Sequelize.BOOLEAN,
+          defaultValue: false,
           allowNull: false,
         },
       },
