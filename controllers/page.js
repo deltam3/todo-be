@@ -54,12 +54,7 @@ exports.deleteTodo = async (req, res, next) => {
 };
 
 exports.doneUpdate = async (req, res, next) => {
-  let doneStatus;
-  if (req.body.done == true) {
-    doneStatus = 0;
-  } else {
-    doneStatus = 1;
-  }
+  let doneStatus = req.body.done;
 
   try {
     const result = await Todo.update(
