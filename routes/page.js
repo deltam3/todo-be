@@ -1,4 +1,7 @@
 const express = require("express");
+
+const { isLoggedIn, isNotLoggedIn } = require("../middlewares");
+
 const {
   getTodos,
   postTodo,
@@ -8,12 +11,17 @@ const {
 
 const router = express.Router();
 
+router.use((req, res, next) => {
+  res.locals.user = req.user;
+  next();
+});
+
 router.get("/", getTodos);
 
-router.post("/", postTodo);
+router.post("/", isLoggedIn, postTodo);
 
-router.delete("/:id", deleteTodo);
+router.delete("/:id", isLoggedIn, deleteTodo); // admin만
 
-router.patch("/:id", doneUpdate);
+router.patch("/:id", isLoggedIn, doneUpdate); // admin만
 
 module.exports = router;

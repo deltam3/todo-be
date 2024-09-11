@@ -33,7 +33,9 @@ class Todo extends Sequelize.Model {
     );
   }
 
-  static associate(db) {}
+  static associate(db) {
+    db.Todo.belongsTo(db.User);
+  }
 }
 
 module.exports = Todo;
