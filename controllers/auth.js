@@ -24,7 +24,7 @@ exports.join = async (req, res, next) => {
     //     }
     //   });
     // })(req, res, next);
-    return res.status(201).json({ message: "success" });
+    // return res.status(201).json({ message: "success" });
   } catch (error) {
     return next(error);
   }
@@ -42,14 +42,22 @@ exports.login = (req, res, next) => {
       if (loginError) {
         return next(loginError);
       }
-
-      return res.status(200).json({ message: "Login successful", user });
+      const userData = {
+        email: user.dataValues.email,
+        nick: user.dataValues.nick,
+        admin: user.dataValues.admin,
+      };
+      console.log(userData);
+      return res.status(200).json(userData);
     });
   })(req, res, next);
 };
 
 exports.logout = (req, res) => {
   req.logout(() => {
-    res.redirect("/");
+    req.session.destroy(() => {
+      res.clearCookie("connect.sid", { path: "/" });
+      res.status(200).json({ message: "bye" });
+    });
   });
 };

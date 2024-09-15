@@ -26,7 +26,7 @@ sequelize
   });
 
 const corsOptions = {
-  origin: "http://localhost:3002", // Your frontend origin
+  origin: "http://localhost:3002",
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   allowedHeaders:
     "Content-Type,Authorization,X-Requested-With,X-Auth-Token,Accept", // Add other headers as needed
@@ -49,11 +49,7 @@ app.use(
     cookie: {
       httpOnly: true,
       secure: false,
-      // sameSite: "none",
-      // maxAge: 3600000,
-      // path: "/",
     },
-    name: "sessionCookie",
   })
 );
 

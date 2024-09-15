@@ -20,8 +20,8 @@ router.get("/", getTodos);
 
 router.post("/", isLoggedIn, postTodo);
 
-router.delete("/:id", isLoggedIn, deleteTodo); // admin만
+router.delete("/:id", isLoggedIn, deleteTodo); // later admin만
 
-router.patch("/:id", isLoggedIn, doneUpdate); // admin만
+router.patch("/:id", isLoggedIn, doneUpdate); // later admin만
 
 module.exports = router;
