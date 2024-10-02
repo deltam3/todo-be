@@ -11,17 +11,16 @@ const {
 
 const router = express.Router();
 
-router.use((req, res, next) => {
-  res.locals.user = req.user;
-  next();
-});
+// router.use((req, res, next) => {
+//   next();
+// });
 
 router.get("/", getTodos);
 
 router.post("/", isLoggedIn, postTodo);
 
-router.delete("/:id", isLoggedIn, deleteTodo); // later admin만
+router.delete("/:id", isLoggedIn, deleteTodo);
 
-router.patch("/:id", isLoggedIn, doneUpdate); // later admin만
+router.patch("/:id", isLoggedIn, doneUpdate);
 
 module.exports = router;

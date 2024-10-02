@@ -1,21 +1,52 @@
-const { Todo } = require("../models");
+const Todo = require("../models/todo");
+const Category = require("../models/category");
+const User = require("../models/user");
 
 exports.getTodos = async (req, res, next) => {
   try {
-    const todos = await Todo.findAll();
+    const todos = await Todo.findAll({
+      include: [
+        {
+          model: User,
+          attributes: ["nick"],
+        },
+        {
+          model: Category,
+          attributes: ["name"],
+        },
+      ],
+    });
+
+    const formattedTodos = todos.map((todo) => ({
+      id: todo.id,
+      content: todo.content,
+      done: todo.done,
+      userNick: todo.User.nick,
+      categoryName: todo.Category.name,
+    }));
+
     res.json({
-      todos: todos,
+      todos: formattedTodos,
     });
   } catch (err) {
-    next(err);
+    return err;
   }
 };
 
 exports.postTodo = async (req, res, next) => {
+  const { content, category } = req.body;
+
   try {
     const todo = await Todo.create({
-      content: req.body.content,
+      content: content,
+      UserId: req.user.id,
     });
+
+    const [categoryInstance] = await Category.findOrCreate({
+      where: { name: category },
+    });
+    await todo.setCategory(categoryInstance);
+
     res.status(201).json({
       message: "Todo created successfully",
       todo,
@@ -45,7 +76,6 @@ exports.deleteTodo = async (req, res, next) => {
       });
     }
   } catch (err) {
-    console.error("Error deleting todo:", err);
     res.status(500).json({
       message: "Failed to delete todo",
       error: err.message,

@@ -11,9 +11,11 @@ router.use((req, res, next) => {
 });
 
 router.post("/join", isNotLoggedIn, join);
+// router.post("/join", join);
 
 router.post("/login", isNotLoggedIn, login);
 
 router.post("/logout", isLoggedIn, logout);
+// router.post("/logout", logout);
 
 module.exports = router;

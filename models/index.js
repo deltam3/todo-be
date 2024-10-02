@@ -9,7 +9,7 @@ const config = require("../config/config")[env];
 
 const db = {};
 const sequelize = new Sequelize(
-  config.databse,
+  config.database,
   config.username,
   config.password,
   config

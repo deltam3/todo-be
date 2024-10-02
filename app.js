@@ -7,7 +7,18 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const { sequelize } = require("./models");
 const passport = require("passport");
-const passportConfig = require("./passport");
+const passportConfig = require("./passport/index");
+const logger = require("./logger");
+const helmet = require("helemet");
+const hpp = require("hpp");
+const RedisStore = require("connect-redis")(session);
+
+const redisClient = redis.createClient({
+  url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+  password: process.env.REDIS_PASSWORD,
+  legacyMode: true,
+});
+redisClient.connect().catch(console.error);
 
 const pageRouter = require("./routes/page");
 const authRouter = require("./routes/auth");
@@ -29,39 +40,61 @@ const corsOptions = {
   origin: "http://localhost:3002",
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   allowedHeaders:
-    "Content-Type,Authorization,X-Requested-With,X-Auth-Token,Accept", // Add other headers as needed
+    "Content-Type,Authorization,X-Requested-With,X-Auth-Token,Accept",
   credentials: true,
 };
 
 app.use(cors(corsOptions));
 
 app.set("port", process.env.PORT || 8001);
-app.use(morgan("dev"));
+
+if (process.env.NODE_ENV === "production") {
+  app.use(morgan("combined"));
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+      crossOriginResourcePolicy: false,
+    })
+  );
+  app.use(hpp());
+} else {
+  app.use(morgan("dev"));
+}
+
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
-app.use(
-  session({
-    resave: false,
-    saveUninitialized: false,
-    secret: process.env.COOKIE_SECRET,
-    cookie: {
-      httpOnly: true,
-      secure: false,
-    },
-  })
-);
+
+const sessionOption = {
+  resave: false,
+  saveUninitialized: false,
+  secret: process.env.COOKIE_SECRET,
+  cookie: {
+    httpOnly: true,
+    secure: false,
+  },
+  store: new RedisStore({ client: redisClient }),
+};
+
+if (process.env.NODE_ENV === "production") {
+  sessionOption.proxy = true;
+}
+
+app.use(session(sessionOption));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use("/todos", pageRouter);
 app.use("/auth", authRouter);
+app.use("/todos", pageRouter);
 
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없다`);
   error.status = 404;
+  logger.info("hello");
+  logger.error(error.message);
   next(error);
 });
 
@@ -74,6 +107,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(app.get("port"), () => {
-  console.log(app.get("port"), "번 포트에서 대기 중");
-});
+module.exports = app;

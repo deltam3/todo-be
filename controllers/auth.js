@@ -3,28 +3,34 @@ const passport = require("passport");
 const User = require("../models/user");
 
 exports.join = async (req, res, next) => {
-  console.log(req.body);
   const { email, nick, password } = req.body;
   try {
     const exUser = await User.findOne({ where: { email } });
     if (exUser) {
-      return res.redirect("/join?error=exist");
+      return res
+        .status(400)
+        .json({ message: "이미 이메일로 생성된 계정이 있습니다." });
     }
     const hash = await bcrypt.hash(password, 12);
-    await User.create({
+    const createdUserResponse = await User.create({
       email,
       nick,
       password: hash,
     });
 
-    // passport.authenticate("local", (authError, user, info) => {
-    //   req.login([email, password], (loginError) => {
-    //     if (loginError) {
-    //       return next(loginError);
-    //     }
-    //   });
-    // })(req, res, next);
-    // return res.status(201).json({ message: "success" });
+    return req.login(createdUserResponse, (loginError) => {
+      if (loginError) {
+        return next(loginError);
+      }
+
+      const userData = {
+        email: createdUserResponse.email,
+        nick: createdUserResponse.nick,
+        admin: createdUserResponse.admin,
+      };
+
+      return res.status(200).json(userData);
+    });
   } catch (error) {
     return next(error);
   }
@@ -38,6 +44,7 @@ exports.login = (req, res, next) => {
     if (!user) {
       return res.redirect(`/?loginError=${info.message}`);
     }
+
     return req.login(user, (loginError) => {
       if (loginError) {
         return next(loginError);
@@ -47,7 +54,7 @@ exports.login = (req, res, next) => {
         nick: user.dataValues.nick,
         admin: user.dataValues.admin,
       };
-      console.log(userData);
+
       return res.status(200).json(userData);
     });
   })(req, res, next);
@@ -57,7 +64,7 @@ exports.logout = (req, res) => {
   req.logout(() => {
     req.session.destroy(() => {
       res.clearCookie("connect.sid", { path: "/" });
-      res.status(200).json({ message: "bye" });
+      res.status(200).json({ message: "로그아웃 성공" });
     });
   });
 };

@@ -24,7 +24,7 @@ class Todo extends Sequelize.Model {
         sequelize,
         timestamps: true,
         underscored: false,
-        midelName: "Todo",
+        modelName: "Todo",
         tableName: "todos",
         paranoid: false,
         charset: "utf8mb4",
@@ -35,6 +35,7 @@ class Todo extends Sequelize.Model {
 
   static associate(db) {
     db.Todo.belongsTo(db.User);
+    db.Todo.belongsTo(db.Category);
   }
 }
 
