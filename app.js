@@ -9,9 +9,10 @@ const { sequelize } = require("./models");
 const passport = require("passport");
 const passportConfig = require("./passport/index");
 const logger = require("./logger");
-const helmet = require("helemet");
+const helmet = require("helmet");
+const redis = require("redis");
 const hpp = require("hpp");
-const RedisStore = require("connect-redis")(session);
+const RedisStore = require("connect-redis").default;
 
 const redisClient = redis.createClient({
   url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
