@@ -10,7 +10,7 @@
 
 침Todo는 현재 프론트엔드 저장소와 백엔드 저장소가 분리되어 있어요.  
 침Todo는 현재 프론트엔드 저장소와 백엔드 저장소가 분리되어 있어요.
-백엔드 저장소는 [todo-be](https://github.com/deltam3/todo-be)를 참고해주세요!
+프론트엔드 저장소는 [todo-fe](https://github.com/deltam3/todo-fe)를 참고해주세요!
 
 ## 📝 Introduce
 
